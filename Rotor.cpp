@@ -20,6 +20,11 @@ char Rotor::getCurrentSetting() const
 	return mCurrentSetting;
 }
 
+char Rotor::getRingSetting() const
+{
+	return mRingSetting;
+}
+
 void Rotor::setCurrentSetting(char setting)
 {
 	mCurrentSetting = setting;
@@ -28,4 +33,9 @@ void Rotor::setCurrentSetting(char setting)
 void Rotor::incrementSetting()
 {
 	mCurrentSetting = int(mCurrentSetting) + 1;
+}
+
+void Rotor::setRingSetting(char setting)
+{
+	mRingSetting = setting;
 }
