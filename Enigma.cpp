@@ -7,7 +7,6 @@ Enigma::Enigma(const char* notches, const std::string* rotorPermutations)
 	{
 		mModifiedAlphabet[i] = char(i + 65);
 	}
-	//std::cout << mModifiedAlphabet[0] << std::endl;
 }
 
 void Enigma::addRotors(int r1, int r2, int r3)
@@ -28,22 +27,23 @@ void Enigma::configurePlugboard(std::vector<std::string> vec)
 	}
 }
 
-void Enigma::rotate()
+void Enigma::rotate(int i)
 {
 	if (mRotorsArray[1]->getCurrentSetting() == mRotorsArray[1]->getNotch())
 	{
-		std::cout << "NOTCH " << 1 << mRotorsArray[1]->getNotch() << std::endl;
+		//std::cout << "NOTCH " << 1 << mRotorsArray[1]->getNotch() << " " << i << std::endl;
 		mRotorsArray[1]->incrementSetting();
 		mRotorsArray[0]->incrementSetting();
 	}
 
 	if (mRotorsArray[2]->getCurrentSetting() == mRotorsArray[2]->getNotch())
 	{
-		std::cout << "NOTCH " << 2 << mRotorsArray[2]->getNotch() << std::endl;
+		//std::cout << "NOTCH " << 2 << mRotorsArray[2]->getNotch() << " " << i << std::endl;
 		mRotorsArray[1]->incrementSetting();
 	}
 
 	mRotorsArray[2]->incrementSetting();
+	//std::cout << mRotorsArray[2]->getCurrentSetting();
 }
 
 std::string Enigma::invertKey(std::string key)
@@ -128,34 +128,67 @@ char Enigma::wire(int rotorIndex, const char letter, int mode)
 	const int offset = int(setting) - 65;
 	int ringOffset = int(ringSetting) - 65;
 
-	int l = (letter + 0) - 65;
+	int l = letter - 65;
 
-
-
-
+	
 
 	//int y = (l + offset) % 26;
 	const int y = mod((l + offset), 26);
+
+	int yyy = getRingPermutation(permutation, ringOffset, y);
+
+	std::cout << "new: " << yyy;
+
+	//permutation = setRingPermutation(permutation, ringOffset, l);
 	//int gap = ((permutation[y] - 65) - y) % 26;
-	const int gap = mod(((permutation[y] - 65) - y), 26);
+	//const int gap = mod(((permutation[y] - 65) - y), 26);
+
+	const int gap = mod((getRingPermutation(permutation, ringOffset, y) - y), 26);
+
+
+
+	std::cout << " old: " << permutation[y] - 65 << std::endl;
+	
 	//std::cout << "index: " << rotorIndex << std::endl;
-	std::cout << permutation << std::endl;
-	std::cout << "ring offset: " << ringOffset << std::endl;
+	//std::cout << permutation << std::endl;
+	//std::cout << "ring offset: " << ringOffset << std::endl;
+
+	//std::string ok = setRingPermutation(permutation, ringOffset, l);
 	
 	
 	//std::cout << "gap: " << gap << " for: " << char(y + 65) << std::endl;
 	//int ret = (l + gap) % 26;
 	const int ret = mod((l + gap), 26);
 	
-
-	char xd = permutation[mod((permutation.find(char(ret + 65)) + ringOffset), 26)];
+	//char xd = permutation[mod((permutation.find(char(ret + 65))), 26)];
 
 	//std::cout << "letter" << xd << std::endl;
 
-	std::cout << letter << " --> " << xd << " " << char(ret + 65) << std::endl;
+	//std::cout << letter << " --> " << xd << " " << char(ret + 65) << std::endl;
+	//std::cout << letter << " --> " << char(ret + 65) << std::endl;
 	
-	//return char(ret + 65);
-	return xd;
+	return char(ret + 65);
+	//return xd;
+}
+
+std::string Enigma::setRingPermutation(std::string str, int ring, int letter)
+{
+	std::string ret = str;
+
+	for (int i = 0; i < 26; i++)
+	{
+		int gap = mod(((str[i] - 65) - i), 26);
+		ret[mod((i + ring), 26)] = char(65 + mod((i + ring + gap), 26));
+	}
+	return ret;
+}
+
+int Enigma::getRingPermutation(std::string str, int ring, int letter)
+{
+	int gap = mod(((str[mod((letter - ring), 26)] - 65) - letter + ring), 26);
+	//std::cout << "GAP: " << gap << std::endl;
+	int ret = mod((letter + gap), 26);
+	return ret;
 }
 
 std::string Enigma::begin()
@@ -163,7 +196,7 @@ std::string Enigma::begin()
 	std::string encodedMessage;
 	for (int i = 0; i < mInputMessage.size(); i++)
 	{
-		rotate();
+		rotate(i);
 		char a = wire(2, mModifiedAlphabet[mInputMessage[i] - 65] , 0);
 		char b = wire(1, a, 0);
 		char c = wire(0, b, 0);
@@ -171,6 +204,12 @@ std::string Enigma::begin()
 		char e = wire(0, d, 2);
 		char f = wire(1, e, 2);
 		char g = wire(2, f, 2);
+
+		if (((i % 5) == 0) && i > 0)
+		{
+			encodedMessage += " ";
+		}
+
 		encodedMessage += mModifiedAlphabet[g - 65];
 	}
 	return encodedMessage;

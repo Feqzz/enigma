@@ -7,7 +7,7 @@ class Enigma
 {
 public:
 	Enigma(const char* notches, const std::string* rotorPermutations);
-	void rotate();
+	void rotate(int i);
 	std::string begin();
 	void addRotors(int r1, int r2, int r3);
 	void setOffsetPositions(const char* positions, const char* ringPositions);
@@ -25,4 +25,6 @@ private:
 	char mModifiedAlphabet[26];
 	char wire(int rotor, const char letter, int mode);
 	int mod(int a, int b);
+	std::string setRingPermutation(std::string str, int ring, int letter);
+	int getRingPermutation(std::string str, int ring, int letter);
 };

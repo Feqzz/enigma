@@ -32,7 +32,7 @@ void Rotor::setCurrentSetting(char setting)
 
 void Rotor::incrementSetting()
 {
-	mCurrentSetting = int(mCurrentSetting) + 1;
+	mCurrentSetting = char(((int(mCurrentSetting) - 64) % 26) + 65);
 }
 
 void Rotor::setRingSetting(char setting)
