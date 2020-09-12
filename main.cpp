@@ -28,6 +28,5 @@ int main(int argc, char *argv[])
 
 	std::string encodedMessage = en.begin();
 	std::cout << "encoded: " << encodedMessage << std::endl;
-
 	return 0;
 }

@@ -16,15 +16,16 @@ public:
 	void configurePlugboard(std::vector<std::string> vec);
 	
 private:
+	char wire(int rotor, const char letter, int mode);
+	int mod(int a, int b) const;
+	int getRingedCharacter(std::string str, int ring, int letter) const;
+	std::string invertKey(std::string key) const;
+
 	Rotor* mRotorsArray[3];
 	const char* mNotches;
 	const std::string* mRotorPermutations;
 	std::string mReflectorPermutation;
 	std::string mInputMessage;
-	std::string invertKey(std::string key);
 	char mModifiedAlphabet[26];
-	char wire(int rotor, const char letter, int mode);
-	int mod(int a, int b);
-	std::string setRingPermutation(std::string str, int ring, int letter);
-	int getRingPermutation(std::string str, int ring, int letter);
+	
 };
