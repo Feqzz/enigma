@@ -8,4 +8,4 @@ build:
 	$(CC) $(PROG).cpp Rotor.cpp Enigma.cpp -o $(NAME)
 
 run:
-	./$(NAME)
+	./$(NAME) TESTING 123 EGH BWC A PG AB

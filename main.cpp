@@ -3,11 +3,42 @@
 #include <algorithm>
 #include <vector>
 
+void printUsage()
+{
+	std::cout << "Usage: ./enigma <text> <rotors> <rotor settings> <ring settings> <reflector> <plugboard setting 1> .. <plugboard setting N>" << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
-	char settingArr[3] = {'A', 'A', 'A'};
-	char ringSettingArr[3] = {'F', 'B', 'C'};
+	if (argc < 4)
+	{
+		printUsage();
+		exit(1);
+	}
+
+	char settingArr[3]; 
+	char ringSettingArr[3];
+	int rotorsArr[3];
 	std::vector<std::string> plugBoard = {};
+
+	const std::string inputMessage = argv[1];
+	const std::string rotorsStr = argv[2];
+	const std::string rotorSettingsStr = argv[3];
+	const std::string ringSettingsStr = argv[4];
+	const int reflectorType = std::atoi(argv[5]);
+
+	for (int i = 0; i < 3; i++)
+	{
+		settingArr[i] = rotorSettingsStr[i];
+		ringSettingArr[i] = ringSettingsStr[i];
+		rotorsArr[i] = (int)rotorsStr[i] - 48;
+	}
+
+	for (int i = 6; i < argc; i++)
+	{
+		const std::string pb = argv[i];
+		plugBoard.push_back(pb);
+	}
 
 	const char notches[5] = {'Q','E','V','J','Z'};
 	const std::string rotorPermutations[5] =
@@ -19,12 +50,19 @@ int main(int argc, char *argv[])
 	  	"VZBRGITYUPSDNHLXAWMJQOFECK"
 	};
 
+	const std::string reflectors[3] =
+	{
+		"EJMZALYXVBWFCRQUONTSPIKHGD",
+		"YRUHQSLDPXNGOKMIEBFZCWVJAT",
+		"FVPJIAOYEDRZXWGCTKUQSBNMHL"
+	};
+
 	Enigma en = Enigma(notches, rotorPermutations);
-	en.addRotors(3, 2, 1);
+	en.addRotors(rotorsArr);
 	en.setOffsetPositions(settingArr, ringSettingArr);
 	en.configurePlugboard(plugBoard);
-	en.setInputMessage("AAA");
-	en.setReflectorPermutation("YRUHQSLDPXNGOKMIEBFZCWVJAT");
+	en.setInputMessage(inputMessage);
+	en.setReflectorPermutation(reflectors[reflectorType]);
 
 	std::string encodedMessage = en.begin();
 	std::cout << "encoded: " << encodedMessage << std::endl;

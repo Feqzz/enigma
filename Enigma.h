@@ -9,7 +9,7 @@ public:
 	Enigma(const char* notches, const std::string* rotorPermutations);
 	void rotate(int i);
 	std::string begin();
-	void addRotors(int r1, int r2, int r3);
+	void addRotors(int arr[3]);
 	void setOffsetPositions(const char* positions, const char* ringPositions);
 	void setInputMessage(std::string str);
 	void setReflectorPermutation(std::string str);

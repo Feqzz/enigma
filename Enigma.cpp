@@ -9,11 +9,12 @@ Enigma::Enigma(const char* notches, const std::string* rotorPermutations)
 	}
 }
 
-void Enigma::addRotors(int r1, int r2, int r3)
+void Enigma::addRotors(int arr[3])
 {
-	mRotorsArray[0] = new Rotor(r1, mNotches[r1 - 1], mRotorPermutations[r1 - 1]);
-	mRotorsArray[1] = new Rotor(r2, mNotches[r2 - 1], mRotorPermutations[r2 - 1]);
-	mRotorsArray[2] = new Rotor(r3, mNotches[r3 - 1], mRotorPermutations[r3 - 1]);
+	for (int i = 0; i < 3; i++)
+	{
+		mRotorsArray[i] = new Rotor(arr[i], mNotches[arr[i] - 1], mRotorPermutations[arr[i] - 1]);
+	}
 }
 
 void Enigma::configurePlugboard(std::vector<std::string> vec)
