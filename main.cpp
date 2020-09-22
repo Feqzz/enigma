@@ -2,6 +2,7 @@
 #include "Enigma.h"
 #include <algorithm>
 #include <vector>
+#include <algorithm>
 
 void printUsage()
 {
@@ -10,7 +11,7 @@ void printUsage()
 
 int main(int argc, char *argv[])
 {
-	if (argc < 4)
+	if (argc < 6)
 	{
 		printUsage();
 		exit(1);
@@ -21,11 +22,11 @@ int main(int argc, char *argv[])
 	int rotorsArr[3];
 	std::vector<std::string> plugBoard = {};
 
-	const std::string inputMessage = argv[1];
+	std::string inputMessage = argv[1];
 	const std::string rotorsStr = argv[2];
 	const std::string rotorSettingsStr = argv[3];
 	const std::string ringSettingsStr = argv[4];
-	const int reflectorType = std::atoi(argv[5]);
+	const int reflectorType = (int)(std::string(argv[5])[0] - 65);
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -56,6 +57,10 @@ int main(int argc, char *argv[])
 		"YRUHQSLDPXNGOKMIEBFZCWVJAT",
 		"FVPJIAOYEDRZXWGCTKUQSBNMHL"
 	};
+
+	//Tranforms the string to only uppercase. Otherwise it will not function, as I have designed the code
+	//to work with uppercases only.
+	std::transform(inputMessage.begin(), inputMessage.end(), inputMessage.begin(), ::toupper);
 
 	Enigma en = Enigma(notches, rotorPermutations);
 	en.addRotors(rotorsArr);

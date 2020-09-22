@@ -3,6 +3,7 @@
 Enigma::Enigma(const char* notches, const std::string* rotorPermutations)
 	: mNotches(notches), mRotorPermutations(rotorPermutations)
 {
+	//Fills up the modified alphabet
 	for (int i = 0; i < 26; i++)
 	{
 		mModifiedAlphabet[i] = char(i + 65);
@@ -19,6 +20,7 @@ void Enigma::addRotors(int arr[3])
 
 void Enigma::configurePlugboard(std::vector<std::string> vec)
 {
+	//The input can look like "AB", then the A and B swaps places in the modified alphabet.
 	for (int i = 0; i < vec.size(); i++)
 	{
 		char x = vec[i][0];
@@ -28,7 +30,7 @@ void Enigma::configurePlugboard(std::vector<std::string> vec)
 	}
 }
 
-void Enigma::rotate(int i)
+void Enigma::rotate()
 {
 	if (mRotorsArray[1]->getCurrentSetting() == mRotorsArray[1]->getNotch())
 	{
@@ -44,7 +46,7 @@ void Enigma::rotate(int i)
 	mRotorsArray[2]->incrementSetting();
 }
 
-std::string Enigma::invertKey(std::string key) const
+std::string Enigma::invertKey(const std::string key) const
 {
 	std::string ret;
 	for (int i = 0; i < 26; i++)
@@ -73,7 +75,7 @@ void Enigma::setReflectorPermutation(std::string str)
 	mReflectorPermutation = str;
 }
 
-int Enigma::mod(int a, int b) const
+int Enigma::mod(const int a, const int b) const
 {
 	if (a == 0)
 	{
@@ -90,7 +92,7 @@ int Enigma::mod(int a, int b) const
 	}
 }
 
-char Enigma::wire(int rotorIndex, const char letter, int mode)
+char Enigma::wire(const int rotorIndex, const char letter, const int mode)
 {
 	std::string permutation;
 	char rotorSetting;
@@ -107,6 +109,7 @@ char Enigma::wire(int rotorIndex, const char letter, int mode)
 
 		case 1:
 		{
+			//When reflecting, there should be no rotor and ring settings.
 			permutation = mReflectorPermutation;
 			rotorSetting = 'A';
 			ringSetting = 'A';
@@ -115,6 +118,7 @@ char Enigma::wire(int rotorIndex, const char letter, int mode)
 
 		case 2:
 		{
+			//On the way back, the permutation is inverted.
 			permutation = invertKey(mRotorsArray[rotorIndex]->getRotorPermutation());
 			rotorSetting = mRotorsArray[rotorIndex]->getCurrentSetting();
 			ringSetting = mRotorsArray[rotorIndex]->getRingSetting();
@@ -122,23 +126,27 @@ char Enigma::wire(int rotorIndex, const char letter, int mode)
 		}
 	}
 
+	//From ASCII to the letter's position in the alphabet.
 	const int rotorOffset = int(rotorSetting) - 65;
 	const int ringOffset = int(ringSetting) - 65;
+	const int let = letter - 65;
 
-	const int l = letter - 65;
+	const int letterWithRotorOffset = mod((let + rotorOffset), 26);
 
-	const int y = mod((l + rotorOffset), 26);
+	const int letterWithRingOffset = getRingedCharacter(permutation, ringOffset, letterWithRotorOffset);
 
-	const int gap = mod((getRingedCharacter(permutation, ringOffset, y) - y), 26);
+	const int gap = mod((letterWithRingOffset - letterWithRotorOffset), 26);
 
-	const int ret = mod((l + gap), 26);
+	//returns the letter with the calculated gap and adds it back to ASCII format.
+	const int ret = mod((let + gap), 26) + 65;
 	
-	return char(ret + 65);
+	return char(ret);
 }
 
-int Enigma::getRingedCharacter(std::string str, int ring, int letter) const
+int Enigma::getRingedCharacter(const std::string permutation, const int ring, const int letter) const
 {
-	const int gap = mod(((str[mod((letter - ring), 26)] - 65) - letter + ring), 26);
+	const int newLetter = permutation[mod((letter - ring), 26)] - 65;
+	const int gap = mod((newLetter - letter + ring), 26);
 	return mod((letter + gap), 26);
 }
 
@@ -147,21 +155,28 @@ std::string Enigma::begin()
 	std::string encodedMessage;
 	for (int i = 0; i < mInputMessage.size(); i++)
 	{
-		rotate(i);
-		char a = wire(2, mModifiedAlphabet[mInputMessage[i] - 65] , 0);
-		char b = wire(1, a, 0);
-		char c = wire(0, b, 0);
-		char d = wire(-1, c, 1);
-		char e = wire(0, d, 2);
-		char f = wire(1, e, 2);
-		char g = wire(2, f, 2);
+		rotate();
+		char currentCharacter = mModifiedAlphabet[mInputMessage[i] - 65];
+
+		for (int j = 2; j >= 0; j--)
+		{
+			currentCharacter = wire(j, currentCharacter, 0);
+		}
+
+		//The reflector
+		currentCharacter = wire(-1, currentCharacter, 1);
+
+		for (int j = 0; j < 3; j++)
+		{
+			currentCharacter = wire(j, currentCharacter, 2);
+		}
 
 		if (((i % 5) == 0) && i > 0)
 		{
 			encodedMessage += " ";
 		}
 
-		encodedMessage += mModifiedAlphabet[g - 65];
+		encodedMessage += mModifiedAlphabet[currentCharacter - 65];
 	}
 	return encodedMessage;
 }
