@@ -2,7 +2,6 @@
 #include "Enigma.h"
 #include <algorithm>
 #include <vector>
-#include <algorithm>
 
 void printUsage()
 {
